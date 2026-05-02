@@ -69,9 +69,10 @@ export function getContract(signer) {
 export async function submitTransaction(fromEntity, toEntity, amount, scheme, ipfsHash) {
   const { signer } = await connectWallet();
   const contract = getContract(signer);
+  // Pass amount as BigInt directly — parseUnits(x, 0) can corrupt large integers
   const tx = await contract.addTransaction(
     fromEntity, toEntity,
-    ethers.parseUnits(amount.toString(), 0),
+    BigInt(Math.round(Number(amount))),
     scheme, ipfsHash
   );
   await tx.wait();

@@ -1,39 +1,124 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MAP_VILLAGES } from '../data/realData';
 import { useAuth } from '../context/AuthContext';
+import { useTransactions } from '../context/TransactionContext';
 
+// ─── Icon Factory ────────────────────────────────────────────────────────────
 const createIcon = (color, shadow) => new L.DivIcon({
   className: 'custom-div-icon',
-  html: `<span style="background-color:${color};width:18px;height:18px;display:block;left:-9px;top:-9px;position:relative;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 6px ${shadow || color}88;" />`,
+  html: `
+    <span style="
+      background-color:${color};
+      width:18px;height:18px;
+      display:block;left:-9px;top:-9px;
+      position:relative;border-radius:50%;
+      border:2.5px solid #fff;
+      box-shadow:0 2px 8px ${shadow || color}99;
+    " />`,
   iconSize: [18, 18],
 });
 
 const ICONS = {
-  flagged: createIcon('#ef4444', '#ef4444'),
-  pending: createIcon('#f59e0b', '#f59e0b'),
-  verified: createIcon('#22c55e', '#22c55e')
+  flagged:  createIcon('#ef4444', '#ef4444'),   // 🔴 frozen / flagged
+  pending:  createIcon('#f59e0b', '#f59e0b'),   // 🟡 no auditor sign yet
+  approved: createIcon('#22c55e', '#22c55e'),   // 🟢 auditor approved
+  verified: createIcon('#22c55e', '#22c55e'),   // alias for static data
 };
 
+// Simple Indian city geocodes for live transactions (fallback lookup)
+const CITY_COORDS = {
+  'kolar':       { lat: 13.1360, lng: 78.1294 },
+  'piparia':     { lat: 22.7512, lng: 78.3879 },
+  'dharwad':     { lat: 15.4589, lng: 74.0074 },
+  'madhubani':   { lat: 26.3534, lng: 86.0713 },
+  'ludhiana':    { lat: 30.9010, lng: 75.8573 },
+  'barmer':      { lat: 25.7521, lng: 71.3967 },
+  'warangal':    { lat: 17.9784, lng: 79.5941 },
+  'nashik':      { lat: 20.0059, lng: 73.7898 },
+  'muzaffarpur': { lat: 26.1197, lng: 85.3910 },
+  'nandyal':     { lat: 15.4786, lng: 78.4836 },
+  'salem':       { lat: 11.6643, lng: 78.1460 },
+  'sidhi':       { lat: 24.4159, lng: 81.8812 },
+  // generic state fallbacks
+  'karnataka':   { lat: 15.3173, lng: 75.7139 },
+  'bihar':       { lat: 25.0961, lng: 85.3131 },
+  'punjab':      { lat: 31.1471, lng: 75.3412 },
+  'maharashtra': { lat: 19.7515, lng: 75.7139 },
+  'rajasthan':   { lat: 27.0238, lng: 74.2179 },
+  'uttar pradesh': { lat: 26.8467, lng: 80.9462 },
+  'tamil nadu':  { lat: 11.1271, lng: 78.6569 },
+};
+
+function lookupCoords(village, state) {
+  const key = (village || '').toLowerCase().trim();
+  const stateKey = (state || '').toLowerCase().trim();
+  return CITY_COORDS[key] || CITY_COORDS[stateKey] || null;
+}
+
+// ─── Status helpers ───────────────────────────────────────────────────────────
+function txStatus(tx) {
+  if (tx.flagged || tx.status === 'frozen')    return 'flagged';
+  if (tx.status === 'approved' || Number(tx.signaturesReceived) > 0) return 'approved';
+  return 'pending';
+}
+
+const STATUS_LABELS = {
+  flagged:  { label: 'Flagged / Frozen', color: '#ef4444', textCls: 'text-red-600' },
+  pending:  { label: 'Pending Auditor Approval', color: '#f59e0b', textCls: 'text-amber-600' },
+  approved: { label: 'Auditor Approved',  color: '#22c55e', textCls: 'text-green-600' },
+  verified: { label: 'Verified',           color: '#22c55e', textCls: 'text-green-600' },
+};
+
+// ─── Component ────────────────────────────────────────────────────────────────
 export default function VillageMap() {
   const { activeDomain } = useAuth();
-  const filteredVillages = MAP_VILLAGES.filter(v => v.domain === activeDomain);
+  const { transactions } = useTransactions();
+
+  // Build live pin layer from transactions submitted by admin
+  const liveVillages = useMemo(() => {
+    return transactions
+      .map(tx => {
+        const coords = lookupCoords(tx.village || tx.toEntity, tx.state || tx.fromEntity);
+        if (!coords) return null;
+        return {
+          name:      tx.village || tx.toEntity || 'Unknown',
+          state:     tx.state   || tx.fromEntity || '',
+          domain:    tx.domain  || tx.scheme || activeDomain,
+          status:    txStatus(tx),
+          allocated: Number(tx.amount) || 0,
+          received:  txStatus(tx) === 'approved' ? Number(tx.amount) : 0,
+          purpose:   tx.purpose || '',
+          timestamp: tx.timestamp || '',
+          isLive:    true,
+          lat: coords.lat,
+          lng: coords.lng,
+        };
+      })
+      .filter(Boolean);
+  }, [transactions, activeDomain]);
+
+  // Merge: static data filtered by domain + all live transactions
+  const staticFiltered = MAP_VILLAGES.filter(v => v.domain === activeDomain);
+  const allVillages = [...staticFiltered, ...liveVillages.filter(v => v.domain === activeDomain)];
+
+  const flaggedCount  = allVillages.filter(v => v.status === 'flagged').length;
+  const pendingCount  = allVillages.filter(v => v.status === 'pending').length;
+  const approvedCount = allVillages.filter(v => v.status === 'approved' || v.status === 'verified').length;
+  const totalAllocated = allVillages.reduce((a, c) => a + (c.allocated || 0), 0);
 
   const handleExportCSV = () => {
     let csv = "data:text/csv;charset=utf-8,Village Name,State,Domain,Status,Allocated,Received,Lat,Lng\n";
-    filteredVillages.forEach(v => { csv += `"${v.name}","${v.state}","${v.domain}","${v.status}",${v.allocated},${v.received},${v.lat},${v.lng}\n`; });
+    allVillages.forEach(v => {
+      csv += `"${v.name}","${v.state}","${v.domain}","${v.status}",${v.allocated},${v.received},${v.lat},${v.lng}\n`;
+    });
     const link = document.createElement("a");
     link.setAttribute("href", encodeURI(csv));
     link.setAttribute("download", `ClearLedger_GeoReport_${activeDomain}.csv`);
     document.body.appendChild(link); link.click(); document.body.removeChild(link);
   };
-
-  const flaggedCount  = filteredVillages.filter(v => v.status === 'flagged').length;
-  const pendingCount  = filteredVillages.filter(v => v.status === 'pending').length;
-  const verifiedCount = filteredVillages.filter(v => v.status === 'verified').length;
-  const totalAllocated = filteredVillages.reduce((a, c) => a + c.allocated, 0);
 
   return (
     <div className="flex flex-col" style={{ height: 'calc(100vh - 130px)' }}>
@@ -41,7 +126,10 @@ export default function VillageMap() {
       <div className="flex justify-between items-end mb-5 flex-shrink-0">
         <div>
           <h2 className="text-2xl font-bold text-slate-900">Geographic Audit Map</h2>
-          <p className="text-sm text-slate-500 mt-1">Live monitoring of {activeDomain} fund deployments across India</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Live monitoring of <strong>{activeDomain}</strong> fund deployments —&nbsp;
+            <span className="text-amber-600 font-semibold">{liveVillages.filter(v => v.domain === activeDomain).length} live pins</span> from submitted transactions
+          </p>
         </div>
         <button
           onClick={handleExportCSV}
@@ -62,12 +150,17 @@ export default function VillageMap() {
             <div className="space-y-5">
               <div>
                 <p className="text-xs font-bold text-slate-400 uppercase mb-1">Villages Mapped</p>
-                <p className="text-3xl font-black text-slate-900">{filteredVillages.length}</p>
+                <p className="text-3xl font-black text-slate-900">{allVillages.length}</p>
+                {liveVillages.filter(v => v.domain === activeDomain).length > 0 && (
+                  <p className="text-[10px] text-amber-600 font-bold mt-0.5">
+                    +{liveVillages.filter(v => v.domain === activeDomain).length} from live submissions
+                  </p>
+                )}
               </div>
               <div>
                 <p className="text-xs font-bold text-slate-400 uppercase mb-1">Total Allocated</p>
                 <p className="text-xl font-black text-blue-700 font-mono">
-                  ₹ {(totalAllocated / 1000000).toFixed(2)}M
+                  ₹ {Number(totalAllocated).toLocaleString('en-IN')}
                 </p>
               </div>
               <div>
@@ -75,21 +168,21 @@ export default function VillageMap() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-green-500"></span>
-                      <span className="text-xs text-slate-600">Verified</span>
+                      <span className="w-3 h-3 rounded-full bg-green-500" />
+                      <span className="text-xs text-slate-600">Approved / Verified</span>
                     </div>
-                    <span className="text-xs font-bold text-green-700">{verifiedCount}</span>
+                    <span className="text-xs font-bold text-green-700">{approvedCount}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-amber-400"></span>
-                      <span className="text-xs text-slate-600">Pending</span>
+                      <span className="w-3 h-3 rounded-full bg-amber-400" />
+                      <span className="text-xs text-slate-600">Pending Auditor</span>
                     </div>
                     <span className="text-xs font-bold text-amber-700">{pendingCount}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-red-500"></span>
+                      <span className="w-3 h-3 rounded-full bg-red-500" />
                       <span className="text-xs text-slate-600">Flagged</span>
                     </div>
                     <span className="text-xs font-bold text-red-700">{flaggedCount}</span>
@@ -102,10 +195,18 @@ export default function VillageMap() {
           {/* Legend */}
           <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm flex-shrink-0">
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3">Map Legend</p>
-            {[['#22c55e', 'Verified'], ['#f59e0b', 'Pending'], ['#ef4444', 'Flagged']].map(([color, label]) => (
-              <div key={label} className="flex items-center gap-2 mb-2 text-xs text-slate-600">
-                <span className="w-3 h-3 rounded-full border-2 border-white shadow-sm" style={{ backgroundColor: color }}></span>
-                {label}
+            {[
+              ['#22c55e', 'Approved / Verified', 'Auditor has signed'],
+              ['#f59e0b', 'Pending', 'Awaiting auditor signature'],
+              ['#ef4444', 'Flagged / Frozen', 'Suspicious — frozen'],
+            ].map(([color, label, desc]) => (
+              <div key={label} className="flex items-start gap-2 mb-3">
+                <span className="w-3 h-3 rounded-full border-2 border-white shadow-sm mt-0.5 flex-shrink-0"
+                  style={{ backgroundColor: color }} />
+                <div>
+                  <p className="text-xs font-bold text-slate-700">{label}</p>
+                  <p className="text-[10px] text-slate-400">{desc}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -123,20 +224,38 @@ export default function VillageMap() {
               url="https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png"
               attribution='&copy; <a href="https://carto.com/">CARTO</a>'
             />
-            {filteredVillages.map((village, idx) => (
-              <Marker key={idx} position={[village.lat, village.lng]} icon={ICONS[village.status]}>
+            {allVillages.map((village, idx) => (
+              <Marker
+                key={`${village.name}-${idx}`}
+                position={[village.lat, village.lng]}
+                icon={ICONS[village.status] || ICONS.pending}
+              >
                 <Popup>
-                  <div className="p-1 min-w-[180px]">
+                  <div className="p-1 min-w-[200px]">
+                    {/* Status header */}
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="w-2.5 h-2.5 rounded-full" style={{
-                        backgroundColor: village.status === 'flagged' ? '#ef4444' : village.status === 'pending' ? '#f59e0b' : '#22c55e'
-                      }}></span>
+                      <span className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                        style={{ backgroundColor: STATUS_LABELS[village.status]?.color || '#f59e0b' }} />
                       <h4 className="font-bold text-sm text-slate-900">{village.name}, {village.state}</h4>
                     </div>
+
+                    {/* Live badge */}
+                    {village.isLive && (
+                      <span className="inline-block text-[9px] font-bold uppercase bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full mb-2">
+                        ● Live Transaction
+                      </span>
+                    )}
+
                     <div className="text-xs space-y-1.5">
                       <div className="flex justify-between border-b border-slate-100 pb-1">
                         <span className="text-slate-500">Domain</span>
                         <span className="font-bold text-slate-800">{village.domain}</span>
+                      </div>
+                      <div className="flex justify-between border-b border-slate-100 pb-1">
+                        <span className="text-slate-500">Status</span>
+                        <span className={`font-bold uppercase text-[10px] ${STATUS_LABELS[village.status]?.textCls}`}>
+                          {STATUS_LABELS[village.status]?.label || village.status}
+                        </span>
                       </div>
                       <div className="flex justify-between border-b border-slate-100 pb-1">
                         <span className="text-slate-500">Allocated</span>
@@ -148,6 +267,18 @@ export default function VillageMap() {
                           ₹{Number(village.received).toLocaleString('en-IN')}
                         </span>
                       </div>
+                      {village.purpose && (
+                        <div className="flex justify-between border-t border-slate-100 pt-1">
+                          <span className="text-slate-500">Purpose</span>
+                          <span className="font-medium text-slate-700 max-w-[120px] text-right">{village.purpose}</span>
+                        </div>
+                      )}
+                      {village.timestamp && (
+                        <div className="flex justify-between">
+                          <span className="text-slate-500">Submitted</span>
+                          <span className="text-slate-600">{village.timestamp}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </Popup>

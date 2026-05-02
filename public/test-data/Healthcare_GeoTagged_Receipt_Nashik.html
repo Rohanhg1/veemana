@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Healthcare Fund Receipt – Nashik PHC – Geo-Tagged</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+    body { background: #f0f9ff; color: #1e293b; padding: 32px; }
+    .page { max-width: 720px; margin: 0 auto; background: white; border-radius: 12px; overflow: hidden; border: 1px solid #bae6fd; }
+    .header { background: #0c4a6e; color: white; padding: 24px 32px; }
+    .header h1 { font-size: 17px; font-weight: 900; }
+    .geo-bar { background: #0369a1; color: white; padding: 8px 32px; font-size: 10px; font-weight: 700; display: flex; gap: 20px; flex-wrap: wrap; }
+    .body { padding: 28px 32px; }
+    .title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 2px solid #e0f2fe; padding-bottom: 14px; }
+    .badge { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; padding: 4px 10px; border-radius: 999px; font-size: 10px; font-weight: 700; }
+    .geo-card { background: #0c4a6e; color: white; border-radius: 8px; padding: 14px 18px; margin-bottom: 18px; display: flex; gap: 32px; flex-wrap: wrap; }
+    .geo-card label { font-size: 9px; opacity: 0.6; display: block; text-transform: uppercase; }
+    .geo-card span { font-size: 14px; font-weight: 800; font-family: monospace; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 18px; }
+    .field { background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 6px; padding: 10px 12px; }
+    .field label { font-size: 9px; font-weight: 700; color: #0369a1; text-transform: uppercase; display: block; margin-bottom: 2px; }
+    .field span { font-size: 12px; font-weight: 600; }
+    .amount-box { background: #eff6ff; border: 2px solid #93c5fd; border-radius: 8px; padding: 16px; text-align: center; margin-bottom: 18px; }
+    .amount-box .val { font-size: 30px; font-weight: 900; color: #1d4ed8; font-family: monospace; }
+    .chain-box { background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; padding: 12px 16px; }
+    .hash-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 10px; }
+    .footer { background: #f0f9ff; border-top: 1px solid #bae6fd; padding: 12px 32px; font-size: 10px; color: #94a3b8; display: flex; justify-content: space-between; }
+  </style>
+</head>
+<body>
+  <div style="text-align:center;margin-bottom:14px;">
+    <button onclick="window.print()" style="background:#0c4a6e;color:white;border:none;padding:10px 24px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">🖨️ Save / Print as PDF</button>
+    <p style="font-size:11px;color:#94a3b8;margin-top:6px;">Print → Save as PDF → Upload in ClearLedger</p>
+  </div>
+  <div class="page">
+    <div class="header">
+      <h1>🇮🇳 National Health Mission — Fund Release Receipt</h1>
+      <p style="font-size:11px;opacity:0.7;margin-top:4px;">PHC Equipment Supply — Geo-Tagged Verification Document</p>
+    </div>
+    <div class="geo-bar">
+      <span>📍 GPS VERIFIED</span><span>Lat: 20.0059°N</span><span>Lng: 73.7898°E</span><span>Accuracy: ±3m</span><span>02-05-2026 09:17:42 IST</span>
+    </div>
+    <div class="body">
+      <div class="title-row">
+        <div>
+          <h2 style="font-size:16px;font-weight:800;">PHC Equipment &amp; Drug Supply Receipt</h2>
+          <p style="font-size:10px;color:#64748b;margin-top:3px;">Ref: NHM-MH-NSK-2026-Q1-047</p>
+        </div>
+        <span class="badge">🛰️ GEO-TAGGED &amp; VERIFIED</span>
+      </div>
+      <div class="geo-card">
+        <div><label>Latitude</label><span>20.0059° N</span></div>
+        <div><label>Longitude</label><span>73.7898° E</span></div>
+        <div><label>Altitude</label><span>565m MSL</span></div>
+        <div><label>Device ID</label><span>GOI-PHO-NHM-0047</span></div>
+      </div>
+      <div class="grid">
+        <div class="field"><label>Village / PHC</label><span>PHC Nashik Rural Block 3</span></div>
+        <div class="field"><label>State / District</label><span>Maharashtra — Nashik</span></div>
+        <div class="field"><label>Scheme</label><span>NHM — Healthcare FY25-26</span></div>
+        <div class="field"><label>Beneficiaries</label><span>~18,400 population</span></div>
+        <div class="field"><label>Vendor</label><span>Cipla Ltd — CPL-3847</span></div>
+        <div class="field"><label>Receiving Officer</label><span>Dr. Priya Mehta, MO-PHC</span></div>
+      </div>
+      <div class="amount-box">
+        <div style="font-size:10px;font-weight:700;color:#3b82f6;text-transform:uppercase;letter-spacing:1px;margin-bottom:4px;">Amount Released</div>
+        <div class="val">₹ 71,00,000</div>
+        <div style="font-size:11px;color:#64748b;margin-top:4px;">Seventy-One Lakh Rupees — Drug &amp; Equipment Procurement</div>
+      </div>
+      <div class="chain-box">
+        <div style="font-size:10px;font-weight:800;color:#166534;text-transform:uppercase;margin-bottom:8px;">🔗 On-Chain Proof</div>
+        <div class="hash-row"><span style="font-weight:700;color:#94a3b8;">TX HASH</span><span style="font-family:monospace;color:#166534;">0x9a8b3c2d1e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b</span></div>
+        <div class="hash-row"><span style="font-weight:700;color:#94a3b8;">IPFS</span><span style="font-family:monospace;color:#166534;">QmNashikPHCGeoTaggedReceiptBlockchainVerified2026</span></div>
+        <div class="hash-row"><span style="font-weight:700;color:#94a3b8;">BLOCK</span><span style="font-family:monospace;color:#166534;">4,829,587 — Sepolia Testnet</span></div>
+      </div>
+    </div>
+    <div class="footer"><span>Issued under NHM Act — blockchain timestamped &amp; geo-verified.</span><span>ClearLedger v2.1</span></div>
+  </div>
+</body>
+</html>

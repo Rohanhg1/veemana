@@ -227,8 +227,24 @@ export default function FundRelease() {
                   <label className={labelCls}>Amount (₹)</label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold">₹</span>
-                    <input type="number" value={formData.amount} onChange={e => setFormData({...formData, amount: e.target.value})} className={`${inputCls} pl-7 font-mono`} placeholder="0" />
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={formData.amount}
+                      onChange={e => {
+                        // Only allow digits — strip everything else
+                        const digits = e.target.value.replace(/[^0-9]/g, '');
+                        setFormData({...formData, amount: digits});
+                      }}
+                      className={`${inputCls} pl-7 font-mono tracking-wide`}
+                      placeholder="e.g. 1200000"
+                    />
                   </div>
+                  {formData.amount && (
+                    <p className="text-[11px] text-slate-400 mt-1 font-mono pl-1">
+                      = ₹ {Number(formData.amount).toLocaleString('en-IN')}
+                    </p>
+                  )}
                 </div>
                 <div>
                   <label className={labelCls}>Transfer Time</label>

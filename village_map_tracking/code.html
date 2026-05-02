@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ClearLedger | Village Map Tracking</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800;900&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "outline": "#8c919c",
+                      "primary-fixed": "#d4e3ff",
+                      "surface-container-low": "#0d1c32",
+                      "on-primary-container": "#c1d9ff",
+                      "secondary-fixed-dim": "#4cd6ff",
+                      "on-surface-variant": "#c2c6d2",
+                      "secondary-fixed": "#b7eaff",
+                      "on-tertiary-container": "#5ef292",
+                      "on-secondary": "#003543",
+                      "on-tertiary": "#003919",
+                      "surface-container": "#112036",
+                      "on-background": "#d6e3ff",
+                      "on-primary": "#00315d",
+                      "on-secondary-container": "#00566b",
+                      "on-primary-fixed-variant": "#004883",
+                      "surface": "#041329",
+                      "primary-container": "#185fa5",
+                      "error": "#ffb4ab",
+                      "tertiary-container": "#006c36",
+                      "secondary": "#a6e6ff",
+                      "on-tertiary-fixed": "#00210c",
+                      "surface-container-highest": "#27354c",
+                      "primary": "#a4c9ff",
+                      "tertiary": "#4ae183",
+                      "surface-variant": "#27354c",
+                      "tertiary-fixed": "#6bfe9c",
+                      "inverse-surface": "#d6e3ff",
+                      "on-error": "#690005",
+                      "background": "#041329",
+                      "surface-dim": "#041329",
+                      "on-surface": "#d6e3ff",
+                      "on-secondary-fixed-variant": "#004e60",
+                      "secondary-container": "#14d1ff",
+                      "inverse-primary": "#1960a6",
+                      "outline-variant": "#424751",
+                      "on-tertiary-fixed-variant": "#005228",
+                      "surface-container-high": "#1c2a41",
+                      "tertiary-fixed-dim": "#4ae183",
+                      "on-secondary-fixed": "#001f28",
+                      "inverse-on-surface": "#233148",
+                      "surface-bright": "#2c3951",
+                      "on-error-container": "#ffdad6",
+                      "primary-fixed-dim": "#a4c9ff",
+                      "surface-tint": "#a4c9ff",
+                      "error-container": "#93000a",
+                      "on-primary-fixed": "#001c39",
+                      "surface-container-lowest": "#010e24"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "xl": "40px",
+                      "lg": "24px",
+                      "container-margin": "32px",
+                      "md": "16px",
+                      "sm": "8px",
+                      "xs": "4px",
+                      "gutter": "20px",
+                      "unit": "4px"
+              },
+              "fontFamily": {
+                      "body-md": ["Public Sans"],
+                      "label-caps": ["Inter"],
+                      "h1": ["Public Sans"],
+                      "h3": ["Public Sans"],
+                      "h2": ["Public Sans"],
+                      "data-tabular": ["Inter"]
+              },
+              "fontSize": {
+                      "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                      "label-caps": ["11px", {"lineHeight": "1", "letterSpacing": "0.06em", "fontWeight": "700"}],
+                      "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "h3": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                      "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "data-tabular": ["13px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "500"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05);
+        }
+        .pulse-green {
+            box-shadow: 0 0 0 0 rgba(74, 225, 131, 0.4);
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% { box-shadow: 0 0 0 0 rgba(74, 225, 131, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(74, 225, 131, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(74, 225, 131, 0); }
+        }
+        .map-bg {
+            background-color: #050B18;
+            background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+            background-size: 24px 24px;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-primary/30">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-60 border-r border-white/10 bg-[#050B18] flex flex-col py-6 z-50">
+<div class="px-6 mb-10 flex items-center gap-3">
+<div class="w-8 h-8 bg-primary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-white" style="font-variation-settings: 'FILL' 1;">account_balance</span>
+</div>
+<div>
+<h1 class="text-lg font-black text-white leading-none">ClearLedger</h1>
+<p class="text-[10px] text-slate-500 uppercase tracking-widest mt-1">Institutional Node</p>
+</div>
+</div>
+<nav class="flex-1 px-3 space-y-1">
+<a class="flex items-center px-3 py-2.5 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 rounded text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center px-3 py-2.5 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 rounded text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3">account_balance</span>
+                Fund Ledger
+            </a>
+<a class="flex items-center px-3 py-2.5 text-white bg-blue-600/20 border-r-2 border-blue-500 transition-all duration-200 rounded-l text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3">map</span>
+                Village Map
+            </a>
+<a class="flex items-center px-3 py-2.5 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 rounded text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3">flag</span>
+                Flag &amp; Report
+            </a>
+<a class="flex items-center px-3 py-2.5 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 rounded text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3">verified_user</span>
+                Verify
+            </a>
+</nav>
+<div class="px-3 pt-6 border-t border-white/10 space-y-1">
+<a class="flex items-center px-3 py-2.5 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 rounded text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3">sensors</span>
+                Wallet Status
+            </a>
+<a class="flex items-center px-3 py-2.5 text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 rounded text-sm font-medium" href="#">
+<span class="material-symbols-outlined mr-3">settings</span>
+                Settings
+            </a>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 h-16 bg-[#050B18]/80 backdrop-blur-xl border-b border-white/10 flex items-center justify-between w-[calc(100%-240px)] px-6 z-40">
+<div class="flex items-center flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">search</span>
+<input class="w-full bg-white/5 border border-white/10 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/20 transition-all" placeholder="Search Gram Panchayat, Block or District..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-slate-400">account_balance_wallet</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-lg hover:bg-white/5 transition-colors cursor-pointer active:opacity-80 relative">
+<span class="material-symbols-outlined text-slate-400">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-error rounded-full"></span>
+</button>
+<div class="h-8 w-[1px] bg-white/10 mx-2"></div>
+<button class="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-white/5 transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined text-slate-400 text-2xl" style="font-variation-settings: 'FILL' 1;">account_circle</span>
+<span class="text-sm font-medium text-slate-300">Admin_92</span>
+</button>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-60 pt-16 h-screen relative overflow-hidden flex">
+<!-- Interactive Map Area -->
+<div class="flex-1 relative map-bg">
+<!-- India Map Visualization Placeholder -->
+<div class="absolute inset-0 flex items-center justify-center opacity-40">
+<img class="max-h-[85%] w-auto grayscale invert brightness-200" data-alt="A detailed digital architectural map of India featuring glowing grid lines and topographical contours. The map is set against a deep navy blue background with hundreds of tiny illuminated data points representing village councils. The overall aesthetic is professional, data-centric, and institutional with high-contrast neon accents in blue, green, and amber representing financial statuses across the subcontinent." data-location="India" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCx6CEWcVS_9IiQL-p3oXFslsnXh1pn1e862JyWVqeAMBcjfN3iajNlnuqlDhkwjHelAHhsHbgDHwHpJ3cfadBgi2dzCfHSBJq-1jAyUz8b6GgDSXo-fZ482rPsTP74skMhuaRgudGR5JWBciHjz61kCCuLmmXX3C2Zk98NzzpubDBSTHuCqIpzoAMN-0Xrt5f-J-zo0VwjBH04y9GPNNsZyUY7LouA1krLCGjdvhM0PwXJJiKuUIXuN08BxTgEUi_IJewqyMprai8"/>
+</div>
+<!-- Village Data Markers (Simulated) -->
+<div class="absolute inset-0 pointer-events-none">
+<!-- Sample Pins -->
+<div class="absolute top-[30%] left-[45%] pointer-events-auto cursor-pointer group">
+<div class="w-4 h-4 bg-tertiary rounded-full border-2 border-white pulse-green"></div>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 glass-card p-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+<p class="text-xs font-bold text-white uppercase tracking-tight">Vikas Nagar GP</p>
+<p class="text-[10px] text-tertiary">Verified Fund Allocation</p>
+<p class="text-[11px] font-data-tabular mt-1">TXN: 0x4E...8A2</p>
+</div>
+</div>
+<div class="absolute top-[55%] left-[52%] pointer-events-auto cursor-pointer group">
+<div class="w-4 h-4 bg-error rounded-full border-2 border-white"></div>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 glass-card p-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+<p class="text-xs font-bold text-white uppercase tracking-tight">Kalyanpur GP</p>
+<p class="text-[10px] text-error">Flagged: Spend Discrepancy</p>
+<p class="text-[11px] font-data-tabular mt-1">Audit Required</p>
+</div>
+</div>
+<div class="absolute top-[40%] left-[38%] pointer-events-auto cursor-pointer group">
+<div class="w-4 h-4 bg-secondary-container rounded-full border-2 border-white"></div>
+<div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 glass-card p-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+<p class="text-xs font-bold text-white uppercase tracking-tight">Rampur GP</p>
+<p class="text-[10px] text-secondary">Pending Node Confirmation</p>
+<p class="text-[11px] font-data-tabular mt-1">Queue: #124</p>
+</div>
+</div>
+</div>
+<!-- Floating Map Controls -->
+<div class="absolute bottom-8 left-8 flex flex-col gap-2">
+<button class="w-10 h-10 glass-card rounded flex items-center justify-center hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white">add</span>
+</button>
+<button class="w-10 h-10 glass-card rounded flex items-center justify-center hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white">remove</span>
+</button>
+<div class="h-4"></div>
+<button class="w-10 h-10 glass-card rounded flex items-center justify-center hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-white">layers</span>
+</button>
+</div>
+<!-- Floating Legend -->
+<div class="absolute bottom-8 right-8 glass-card p-4 rounded-xl">
+<p class="text-label-caps text-slate-400 mb-3 uppercase">Status Ledger Legend</p>
+<div class="space-y-3">
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-tertiary"></span>
+<span class="text-sm font-medium text-slate-200">Verified &amp; Secure</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-secondary-container"></span>
+<span class="text-sm font-medium text-slate-200">Pending Verification</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="w-3 h-3 rounded-full bg-error"></span>
+<span class="text-sm font-medium text-slate-200">Flagged for Audit</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Side Panel: Stats -->
+<aside class="w-80 border-l border-white/10 bg-[#050B18]/50 backdrop-blur-md flex flex-col p-6 overflow-y-auto">
+<h2 class="text-h3 font-h3 text-white mb-6">Real-time Map Statistics</h2>
+<!-- Metric Cards -->
+<div class="space-y-4">
+<div class="glass-card p-4 rounded-xl">
+<p class="text-label-caps text-slate-400 uppercase mb-1">Total Villages Tracked</p>
+<p class="text-2xl font-bold text-white font-data-tabular">640,932</p>
+<div class="w-full bg-white/5 h-1.5 rounded-full mt-3 overflow-hidden">
+<div class="bg-primary h-full w-[88%]"></div>
+</div>
+<p class="text-[10px] text-slate-500 mt-2">88.4% of total GP mapped</p>
+</div>
+<div class="glass-card p-4 rounded-xl border-l-2 border-l-tertiary">
+<p class="text-label-caps text-tertiary uppercase mb-1">Active Fund Flows</p>
+<div class="flex items-baseline gap-2">
+<p class="text-2xl font-bold text-white font-data-tabular">₹42.8B</p>
+<span class="text-[10px] text-tertiary flex items-center">
+<span class="material-symbols-outlined text-[12px] mr-1">trending_up</span>+12%
+                        </span>
+</div>
+<p class="text-[10px] text-slate-500 mt-1">Live blockchain disbursements</p>
+</div>
+<div class="glass-card p-4 rounded-xl border-l-2 border-l-error">
+<p class="text-label-caps text-error uppercase mb-1">High-Risk Zones</p>
+<p class="text-2xl font-bold text-white font-data-tabular">24</p>
+<p class="text-[10px] text-slate-500 mt-1">Districts requiring immediate audit</p>
+</div>
+</div>
+<!-- Recent Activity List -->
+<div class="mt-8">
+<h3 class="text-label-caps text-slate-400 uppercase mb-4">Latest Verifications</h3>
+<div class="space-y-4">
+<div class="flex gap-3">
+<div class="mt-1 w-2 h-2 rounded-full bg-tertiary shrink-0"></div>
+<div>
+<p class="text-xs font-semibold text-slate-200">Andhra Pradesh / Chittoor</p>
+<p class="text-[10px] text-slate-500">₹2.4M Verified 2m ago</p>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="mt-1 w-2 h-2 rounded-full bg-secondary-container shrink-0"></div>
+<div>
+<p class="text-xs font-semibold text-slate-200">Bihar / Madhubani</p>
+<p class="text-[10px] text-slate-500">Pending consensus (3/5 nodes)</p>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="mt-1 w-2 h-2 rounded-full bg-error shrink-0"></div>
+<div>
+<p class="text-xs font-semibold text-slate-200">Punjab / Ludhiana</p>
+<p class="text-[10px] text-slate-500">Automatic flag triggered: Duplication</p>
+</div>
+</div>
+<div class="flex gap-3">
+<div class="mt-1 w-2 h-2 rounded-full bg-tertiary shrink-0"></div>
+<div>
+<p class="text-xs font-semibold text-slate-200">Kerala / Wayanad</p>
+<p class="text-[10px] text-slate-500">₹1.8M Secure Receipt Confirmed</p>
+</div>
+</div>
+</div>
+</div>
+<!-- CTA -->
+<button class="mt-auto w-full bg-primary-container hover:bg-primary-container/80 text-white font-semibold py-3 rounded-lg text-sm flex items-center justify-center transition-colors">
+<span class="material-symbols-outlined mr-2 text-lg">download_for_offline</span>
+                Export Geographic Report
+            </button>
+</aside>
+</main>
+<!-- Contextual Info Toast -->
+<div class="fixed bottom-6 left-[280px] glass-card px-4 py-3 rounded-lg flex items-center gap-4 z-40 border-l-4 border-l-primary animate-pulse">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">info</span>
+<div>
+<p class="text-xs font-bold text-white uppercase tracking-wider">Live Node Syncing</p>
+<p class="text-[10px] text-slate-400">Synchronizing with 1,240 regional oracle nodes...</p>
+</div>
+<div class="ml-4 flex gap-1">
+<span class="w-1 h-1 bg-primary rounded-full"></span>
+<span class="w-1 h-1 bg-primary rounded-full"></span>
+<span class="w-1 h-1 bg-primary rounded-full"></span>
+</div>
+</div>
+</body></html>

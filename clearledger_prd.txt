@@ -1,0 +1,48 @@
+# ClearLedger: Blockchain Public Fund Tracking Dashboard (India)
+
+## Overview
+A React-based government dashboard for tracking public funds using blockchain technology.
+
+## Core Components
+### Sidebar
+- Navigation: Dashboard, Fund Ledger, Village Map, Flag & Report, Verify.
+- Icons: Serious, minimal SVG icons.
+- Branding: "ClearLedger" logo.
+- Footer: "MetaMask Connected: Sepolia Testnet" with a green status dot.
+
+### Topbar
+- Dynamic page title.
+- Pulsing green dot (live blockchain connection).
+- Role switcher: Public / Auditor / Admin.
+
+## Pages
+### Dashboard
+- Metrics (Glassmorphism cards):
+    - Total Allocated: ₹86,000 Cr
+    - Reached Ground: ₹71,240 Cr
+    - Flagged Leakage: ₹169.75 Cr
+    - Active AI Alerts: (Live counter)
+- Charts: 
+    - Line chart: Allocated vs Received (12 months).
+    - Bar chart: State-wise misappropriation (Indian states).
+- AI Anomaly Alerts panel: Recent suspicious activities with status dots (Red/Amber).
+
+### Fund Ledger
+- Data-dense table: From, To (Village), Amount (₹), Tx Hash (0x...), Timestamp, Status (Verified/Flagged/Pending).
+- Interactions: Expandable rows showing "AI suspicion score" (e.g., 85/100) and "IPFS proof hash."
+
+### Village Map
+- Layout: Full-width map of the Republic of India.
+- Data: Granular markers for Gram Panchayats (villages).
+- Clustering: State/District clusters zooming into exact locations.
+- Legend: Red (Flagged), Amber (Pending), Green (Verified).
+- Side Panel: Map stats (Total Villages Tracked, High-Risk zones).
+
+### Flag & Report
+- Form: Scheme (MGNREGA, PM Awaas, etc.), State, District, Amount, Description.
+- Action: "Analyse with AI + Record on Blockchain" button (Glowing blue).
+- Result: "AI Analysis Result" panel (Risk score, next steps).
+
+### Verify (Citizen Search)
+- Search: Large center input "Enter your village or Gram Panchayat name to verify funds."
+- Result Card: Allocated vs Received on-chain, "Blockchain Confirmed" green badge.

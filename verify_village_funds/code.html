@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ClearLedger - Fund Verification</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800;900&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "outline": "#8c919c",
+                        "primary-fixed": "#d4e3ff",
+                        "surface-container-low": "#0d1c32",
+                        "on-primary-container": "#c1d9ff",
+                        "secondary-fixed-dim": "#4cd6ff",
+                        "on-surface-variant": "#c2c6d2",
+                        "secondary-fixed": "#b7eaff",
+                        "on-tertiary-container": "#5ef292",
+                        "on-secondary": "#003543",
+                        "on-tertiary": "#003919",
+                        "surface-container": "#112036",
+                        "on-background": "#d6e3ff",
+                        "on-primary": "#00315d",
+                        "on-secondary-container": "#00566b",
+                        "on-primary-fixed-variant": "#004883",
+                        "surface": "#041329",
+                        "primary-container": "#185fa5",
+                        "error": "#ffb4ab",
+                        "tertiary-container": "#006c36",
+                        "secondary": "#a6e6ff",
+                        "on-tertiary-fixed": "#00210c",
+                        "surface-container-highest": "#27354c",
+                        "primary": "#a4c9ff",
+                        "tertiary": "#4ae183",
+                        "surface-variant": "#27354c",
+                        "tertiary-fixed": "#6bfe9c",
+                        "inverse-surface": "#d6e3ff",
+                        "on-error": "#690005",
+                        "background": "#041329",
+                        "surface-dim": "#041329",
+                        "on-surface": "#d6e3ff",
+                        "on-secondary-fixed-variant": "#004e60",
+                        "secondary-container": "#14d1ff",
+                        "inverse-primary": "#1960a6",
+                        "outline-variant": "#424751",
+                        "on-tertiary-fixed-variant": "#005228",
+                        "surface-container-high": "#1c2a41",
+                        "tertiary-fixed-dim": "#4ae183",
+                        "on-secondary-fixed": "#001f28",
+                        "inverse-on-surface": "#233148",
+                        "surface-bright": "#2c3951",
+                        "on-error-container": "#ffdad6",
+                        "primary-fixed-dim": "#a4c9ff",
+                        "surface-tint": "#a4c9ff",
+                        "error-container": "#93000a",
+                        "on-primary-fixed": "#001c39",
+                        "surface-container-lowest": "#010e24"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.125rem",
+                        "lg": "0.25rem",
+                        "xl": "0.5rem",
+                        "full": "0.75rem"
+                    },
+                    "spacing": {
+                        "xl": "40px",
+                        "lg": "24px",
+                        "container-margin": "32px",
+                        "md": "16px",
+                        "sm": "8px",
+                        "xs": "4px",
+                        "gutter": "20px",
+                        "unit": "4px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Public Sans"],
+                        "label-caps": ["Inter"],
+                        "h1": ["Public Sans"],
+                        "h3": ["Public Sans"],
+                        "h2": ["Public Sans"],
+                        "data-tabular": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-md": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-caps": ["11px", {"lineHeight": "1", "letterSpacing": "0.06em", "fontWeight": "700"}],
+                        "h1": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "h3": ["18px", {"lineHeight": "1.4", "fontWeight": "600"}],
+                        "h2": ["24px", {"lineHeight": "1.3", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "data-tabular": ["13px", {"lineHeight": "1.4", "letterSpacing": "0.01em", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        .status-pulse {
+            position: relative;
+        }
+        .status-pulse::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            background: currentColor;
+            border-radius: 50%;
+            opacity: 0.5;
+            transform: scale(1);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.5; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="bg-background font-body-md text-on-background min-h-screen">
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-screen w-60 border-r border-white/10 bg-[#050B18] flex flex-col py-6 z-50">
+<div class="px-6 mb-8 flex items-center gap-3">
+<div class="w-8 h-8 bg-primary-container rounded flex items-center justify-center">
+<span class="material-symbols-outlined text-white" data-icon="account_balance">account_balance</span>
+</div>
+<div>
+<h2 class="text-lg font-black text-white leading-none">ClearLedger</h2>
+<p class="text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-1">Institutional Node</p>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-sm font-medium font-public-sans">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="account_balance">account_balance</span>
+<span class="text-sm font-medium font-public-sans">Fund Ledger</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="map">map</span>
+<span class="text-sm font-medium font-public-sans">Village Map</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="flag">flag</span>
+<span class="text-sm font-medium font-public-sans">Flag &amp; Report</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-white bg-blue-600/20 border-r-2 border-blue-500 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="verified_user">verified_user</span>
+<span class="text-sm font-medium font-public-sans">Verify</span>
+</a>
+</nav>
+<div class="px-4 mt-auto pt-6 border-t border-white/5 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="sensors">sensors</span>
+<span class="text-sm font-medium font-public-sans">Wallet Status</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded text-slate-500 hover:text-slate-300 hover:bg-white/5 transition-all duration-200 ease-in-out" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-sm font-medium font-public-sans">Settings</span>
+</a>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="fixed top-0 right-0 border-b border-white/10 bg-[#050B18]/80 backdrop-blur-xl h-16 ml-60 left-60 flex items-center justify-between px-6 z-40">
+<div class="flex items-center gap-4 flex-1">
+<span class="material-symbols-outlined text-slate-400" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm text-on-surface w-64 font-public-sans" placeholder="Global search..." type="text"/>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 px-3 py-1.5 rounded bg-white/5 border border-white/10">
+<span class="w-2 h-2 rounded-full bg-tertiary status-pulse"></span>
+<span class="text-xs font-label-caps text-tertiary">NETWORK LIVE</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-slate-400 hover:text-white transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined" data-icon="account_balance_wallet">account_balance_wallet</span>
+</button>
+<button class="text-slate-400 hover:text-white transition-colors cursor-pointer active:opacity-80 relative">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-0 right-0 w-1.5 h-1.5 bg-error rounded-full"></span>
+</button>
+<button class="text-slate-400 hover:text-white transition-colors cursor-pointer active:opacity-80">
+<span class="material-symbols-outlined" data-icon="account_circle">account_circle</span>
+</button>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-60 pt-16 min-h-screen">
+<div class="max-w-5xl mx-auto px-container-margin py-xl">
+<!-- Hero Search Section -->
+<section class="flex flex-col items-center text-center mt-12 mb-16">
+<div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary-container/20 border border-primary-container/30 text-primary mb-6">
+<span class="material-symbols-outlined text-[18px]" data-icon="verified" data-weight="fill" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-xs font-bold font-label-caps">BLOCKCHAIN PUBLIC VERIFIER</span>
+</div>
+<h1 class="text-h1 font-h1 text-white mb-4">Audit Village Funds Instantly</h1>
+<p class="text-slate-400 max-w-2xl mb-10 text-lg">
+                    Real-time verification of MGNREGA, PM-Awas, and Local Development funds directly from the decentralized ledger.
+                </p>
+<!-- Centered Large Search -->
+<div class="w-full max-w-3xl glass-card rounded-xl p-2 flex items-center gap-4 focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+<div class="pl-4 text-slate-500">
+<span class="material-symbols-outlined" data-icon="location_on">location_on</span>
+</div>
+<input class="flex-1 bg-transparent border-none focus:ring-0 text-white py-4 text-lg font-public-sans" placeholder="Enter your village or Gram Panchayat name to verify funds." type="text" value="Koppal Gram Panchayat"/>
+<button class="bg-primary-container text-white px-8 py-4 rounded-lg font-bold hover:bg-primary-container/90 transition-colors flex items-center gap-2">
+<span>Verify Funds</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+<div class="flex gap-6 mt-6 text-slate-500 text-xs font-label-caps">
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="history">history</span> RECENT: PIPARIA GP</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-sm" data-icon="history">history</span> RECENT: DHARWAD CENTRAL</span>
+</div>
+</section>
+<!-- Result Card (Mockup) -->
+<section class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+<div class="glass-card rounded-xl overflow-hidden">
+<!-- Card Header -->
+<div class="px-lg py-md border-b border-white/10 bg-white/5 flex items-center justify-between">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 bg-surface-container-highest rounded-lg flex items-center justify-center border border-white/10">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="holiday_village">holiday_village</span>
+</div>
+<div>
+<h3 class="text-h3 font-h3 text-white">Koppal Gram Panchayat</h3>
+<p class="text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[12px]" data-icon="fingerprint">fingerprint</span> 
+                                    TX-ID: 0x4f2a...88e1 • Karnataka State
+                                </p>
+</div>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-tertiary/10 border border-tertiary/30 text-tertiary">
+<span class="material-symbols-outlined text-[18px]" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+<span class="text-[11px] font-bold font-label-caps">BLOCKCHAIN CONFIRMED</span>
+</div>
+</div>
+<!-- Card Body: Bento Style Grid -->
+<div class="p-lg grid grid-cols-12 gap-gutter">
+<!-- Left: Allocation Stats -->
+<div class="col-span-12 md:col-span-7 grid grid-cols-2 gap-4">
+<div class="bg-surface-container-lowest/50 border border-white/5 p-md rounded-lg">
+<span class="text-xs font-label-caps text-slate-500 mb-2 block uppercase">Allocated Budget (FY24)</span>
+<div class="text-2xl font-bold text-white font-data-tabular">₹ 14,80,000</div>
+<div class="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-primary-container w-full"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest/50 border border-white/5 p-md rounded-lg">
+<span class="text-xs font-label-caps text-slate-500 mb-2 block uppercase">Funds Received</span>
+<div class="text-2xl font-bold text-white font-data-tabular">₹ 12,45,000</div>
+<div class="mt-2 h-1.5 bg-white/10 rounded-full overflow-hidden">
+<div class="h-full bg-tertiary w-[84%]"></div>
+</div>
+</div>
+<div class="col-span-2 bg-surface-container-lowest/50 border border-white/5 p-md rounded-lg flex items-center justify-between">
+<div>
+<span class="text-xs font-label-caps text-slate-500 mb-1 block uppercase">Active Projects</span>
+<div class="text-xl font-bold text-white">08 <span class="text-sm font-normal text-slate-500 ml-1">in progress</span></div>
+</div>
+<div class="flex -space-x-2">
+<div class="w-8 h-8 rounded-full border-2 border-[#050B18] overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a male Indian government project supervisor wearing a formal shirt and glasses, set against a blurred office background with warm directional lighting. The aesthetic is corporate and professional, aligned with government transparency standards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJY3DjsruhP4kYY1ykG_TN6ecR-TlpS-swRYMtRC0AWPRapMySTACm7-P1Ah_iWGC2IpTjERoc4G7E7wuuzhAO9iV-DFyulW97aM48offleIs4em0ZsONwfbgPcp84ZGqqqPjJLGcAqJaPXffEYKkavFenfDvbMQxgW2wH7jqGauc5y3tGxmQ1p-6c7l574qm1WVdzdnxZdSojG0Q5IFCbZVstXBWaRVhOy04hqxlgQin1g-00Gdd_lzsys7KLa_qeDN0N36AUo0o"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-[#050B18] overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A portrait of a female professional civil engineer with a confident expression, wearing a neutral-toned blazer in a modern architectural setting. The lighting is crisp and natural, highlighting an atmosphere of institutional authority and precision." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDpoPznFV6qzuQWGB8x1nd2VkFJKwtWL-rxa8adNqoOBk4uyEk-woHjhtgYyKOUOWGX4Nz6oJa-OeH5ebUgSTM5nS0ncjwKZpgViGECfKuE31TI74u4sHD53cThgOYRrpNPYGNUC8GFvNO7BiKHptlE247ZmBhDZIctaqWPegPd0-2nD08RjY0B-PYWWap-bHmAk5R0gQAeey5XB8MiM70GwB4FHzFNLhUqasJ3soLsx-qKj_s3kQzigADM4-wDVKLn71ppzHrAIZM"/>
+</div>
+<div class="w-8 h-8 rounded-full border-2 border-[#050B18] bg-surface-container flex items-center justify-center text-[10px] text-slate-400 font-bold">+6</div>
+</div>
+</div>
+</div>
+<!-- Right: Comparison Chart Area -->
+<div class="col-span-12 md:col-span-5 bg-white/5 border border-white/10 p-md rounded-lg flex flex-col">
+<span class="text-xs font-label-caps text-slate-500 mb-4 block uppercase">Disbursement Health</span>
+<div class="flex-1 flex items-end gap-3 justify-center pb-4">
+<div class="flex flex-col items-center gap-2">
+<div class="w-12 bg-primary-container/40 rounded-t-sm h-32 relative group">
+<div class="absolute inset-0 bg-primary-container opacity-0 group-hover:opacity-100 transition-opacity"></div>
+</div>
+<span class="text-[10px] text-slate-500 font-bold">JAN</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-12 bg-primary-container/40 rounded-t-sm h-24"></div>
+<span class="text-[10px] text-slate-500 font-bold">FEB</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-12 bg-primary-container/40 rounded-t-sm h-40"></div>
+<span class="text-[10px] text-slate-500 font-bold">MAR</span>
+</div>
+<div class="flex flex-col items-center gap-2">
+<div class="w-12 bg-tertiary rounded-t-sm h-48 relative">
+<div class="absolute -top-6 left-1/2 -translate-x-1/2 text-tertiary font-bold text-[10px]">PEAK</div>
+</div>
+<span class="text-[10px] text-slate-500 font-bold">APR</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Card Footer: Map & Actions -->
+<div class="px-lg py-md bg-white/[0.02] border-t border-white/10 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+<div class="flex items-center gap-4 text-sm text-slate-400">
+<span class="material-symbols-outlined text-primary" data-icon="info">info</span>
+<p>Data synced with National Ledger 2 minutes ago. All transactions are immutable and public.</p>
+</div>
+<div class="flex justify-end gap-3">
+<button class="px-4 py-2 text-xs font-bold font-label-caps border border-white/10 hover:bg-white/5 rounded transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="download">download</span>
+                                FULL AUDIT REPORT
+                            </button>
+<button class="px-4 py-2 text-xs font-bold font-label-caps bg-primary-container text-white rounded transition-all flex items-center gap-2">
+<span class="material-symbols-outlined text-[16px]" data-icon="share">share</span>
+                                SHARE PUBLIC LINK
+                            </button>
+</div>
+</div>
+</div>
+<!-- Transparency Map Snippet -->
+<div class="mt-8 grid grid-cols-1 md:grid-cols-3 gap-gutter">
+<div class="md:col-span-2 glass-card rounded-xl p-md flex flex-col h-64 overflow-hidden relative">
+<div class="absolute top-4 left-4 z-10 bg-[#050B18]/80 backdrop-blur px-3 py-1.5 rounded border border-white/10">
+<span class="text-xs font-bold font-label-caps text-white">VILLAGE INFRASTRUCTURE MAPPING</span>
+</div>
+<img class="w-full h-full object-cover opacity-60" data-alt="A top-down satellite view of a rural Indian village with clearly marked digital overlays showing infrastructure projects like water tanks and roads. The map is rendered in a high-tech blueprint style with glowing blue lines and data points, reflecting a modern blockchain-verified tracking system." data-location="Koppal, India" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCqaPc4TvQAMYkvNKDSglxZAAFvbpWtqtM69I0liWI4bvBqVpE0s_dO93EXBHkhyC5LwX9BgECa7w0oGMqH7TeOae5ypp-oaeQN-0I3il936Ce3NMDAnWQldiXoAvctlt6CTnJVxlj-zNYLNllXT7V2SJgPW_jc47wCIlpAKcRsNgsqq3sVCqtnX8kq3dGyPy6UGL-bEx2v7tCuD2U2Iztnv3R95cLKL_A170vGLlV48AbMyVlT23ibvfaDit8Zk7xTZDPZvVhv1dU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#050B18] via-transparent to-transparent"></div>
+</div>
+<div class="glass-card rounded-xl p-lg flex flex-col justify-center text-center">
+<div class="w-16 h-16 bg-tertiary-container/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-tertiary/20">
+<span class="material-symbols-outlined text-tertiary text-3xl" data-icon="verified_user">verified_user</span>
+</div>
+<h4 class="text-white font-bold mb-2">Zero Discrepancy Found</h4>
+<p class="text-slate-500 text-sm mb-6">Blockchain audit confirms 100% match between sanctioned amounts and vendor receipts.</p>
+<a class="text-primary text-xs font-bold font-label-caps hover:underline flex items-center justify-center gap-1" href="#">
+                            VIEW LEDGER PROOF <span class="material-symbols-outlined text-[14px]" data-icon="open_in_new">open_in_new</span>
+</a>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- FAB (Suppressed on this deep-dive verification screen as per mandate) -->
+</body></html>

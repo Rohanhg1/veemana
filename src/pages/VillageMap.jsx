@@ -1,62 +1,78 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 import { MAP_VILLAGES } from '../data/realData';
 import { useAuth } from '../context/AuthContext';
 import { useTransactions } from '../context/TransactionContext';
+// Real India geocode dataset: 4,425 cities/towns with lat/lng
+// Source: GeoNames via github.com/lutangar/cities.json (filtered to IN)
+import INDIA_GEOCODES from '../data/india_geocodes.json';
+
+// ─── Build fast lookup map on first load ────────────────────────────────────
+// key = lowercase city name → { lat, lng }
+const GEOCODE_MAP = {};
+for (const city of INDIA_GEOCODES) {
+  const key = city.name.toLowerCase().trim();
+  if (!GEOCODE_MAP[key]) {
+    GEOCODE_MAP[key] = { lat: city.lat, lng: city.lng };
+  }
+}
+
+// State-level fallback centroids
+const STATE_COORDS = {
+  'karnataka':      { lat: 15.3173, lng: 75.7139 },
+  'bihar':          { lat: 25.0961, lng: 85.3131 },
+  'punjab':         { lat: 31.1471, lng: 75.3412 },
+  'maharashtra':    { lat: 19.7515, lng: 75.7139 },
+  'rajasthan':      { lat: 27.0238, lng: 74.2179 },
+  'uttar pradesh':  { lat: 26.8467, lng: 80.9462 },
+  'tamil nadu':     { lat: 11.1271, lng: 78.6569 },
+  'gujarat':        { lat: 22.2587, lng: 71.1924 },
+  'madhya pradesh': { lat: 22.9734, lng: 78.6569 },
+  'west bengal':    { lat: 22.9868, lng: 87.8550 },
+  'andhra pradesh': { lat: 15.9129, lng: 79.7400 },
+  'telangana':      { lat: 18.1124, lng: 79.0193 },
+  'odisha':         { lat: 20.9517, lng: 85.0985 },
+  'kerala':         { lat: 10.8505, lng: 76.2711 },
+  'jharkhand':      { lat: 23.6102, lng: 85.2799 },
+  'assam':          { lat: 26.2006, lng: 92.9376 },
+  'haryana':        { lat: 29.0588, lng: 76.0856 },
+  'uttarakhand':    { lat: 30.0668, lng: 79.0193 },
+  'chhattisgarh':   { lat: 21.2787, lng: 81.8661 },
+  'himachal pradesh':{ lat: 31.1048, lng: 77.1734 },
+  'delhi':          { lat: 28.7041, lng: 77.1025 },
+};
+
+function lookupCoords(village, state) {
+  // 1. Try exact city name match
+  const cityKey = (village || '').toLowerCase().trim();
+  if (cityKey && GEOCODE_MAP[cityKey]) return GEOCODE_MAP[cityKey];
+
+  // 2. Try partial prefix match (e.g. "Kolar" matches "Kolar Gold Fields")
+  if (cityKey.length > 3) {
+    const match = Object.keys(GEOCODE_MAP).find(k => k.startsWith(cityKey) || cityKey.startsWith(k));
+    if (match) return GEOCODE_MAP[match];
+  }
+
+  // 3. Fall back to state centroid
+  const stateKey = (state || '').toLowerCase().trim();
+  return STATE_COORDS[stateKey] || null;
+}
 
 // ─── Icon Factory ────────────────────────────────────────────────────────────
 const createIcon = (color, shadow) => new L.DivIcon({
   className: 'custom-div-icon',
-  html: `
-    <span style="
-      background-color:${color};
-      width:18px;height:18px;
-      display:block;left:-9px;top:-9px;
-      position:relative;border-radius:50%;
-      border:2.5px solid #fff;
-      box-shadow:0 2px 8px ${shadow || color}99;
-    " />`,
+  html: `<span style="background-color:${color};width:18px;height:18px;display:block;left:-9px;top:-9px;position:relative;border-radius:50%;border:2.5px solid #fff;box-shadow:0 2px 8px ${shadow || color}99;" />`,
   iconSize: [18, 18],
 });
 
 const ICONS = {
-  flagged:  createIcon('#ef4444', '#ef4444'),   // 🔴 frozen / flagged
-  pending:  createIcon('#f59e0b', '#f59e0b'),   // 🟡 no auditor sign yet
-  approved: createIcon('#22c55e', '#22c55e'),   // 🟢 auditor approved
-  verified: createIcon('#22c55e', '#22c55e'),   // alias for static data
+  flagged:  createIcon('#ef4444', '#ef4444'),
+  pending:  createIcon('#f59e0b', '#f59e0b'),
+  approved: createIcon('#22c55e', '#22c55e'),
+  verified: createIcon('#22c55e', '#22c55e'),
 };
-
-// Simple Indian city geocodes for live transactions (fallback lookup)
-const CITY_COORDS = {
-  'kolar':       { lat: 13.1360, lng: 78.1294 },
-  'piparia':     { lat: 22.7512, lng: 78.3879 },
-  'dharwad':     { lat: 15.4589, lng: 74.0074 },
-  'madhubani':   { lat: 26.3534, lng: 86.0713 },
-  'ludhiana':    { lat: 30.9010, lng: 75.8573 },
-  'barmer':      { lat: 25.7521, lng: 71.3967 },
-  'warangal':    { lat: 17.9784, lng: 79.5941 },
-  'nashik':      { lat: 20.0059, lng: 73.7898 },
-  'muzaffarpur': { lat: 26.1197, lng: 85.3910 },
-  'nandyal':     { lat: 15.4786, lng: 78.4836 },
-  'salem':       { lat: 11.6643, lng: 78.1460 },
-  'sidhi':       { lat: 24.4159, lng: 81.8812 },
-  // generic state fallbacks
-  'karnataka':   { lat: 15.3173, lng: 75.7139 },
-  'bihar':       { lat: 25.0961, lng: 85.3131 },
-  'punjab':      { lat: 31.1471, lng: 75.3412 },
-  'maharashtra': { lat: 19.7515, lng: 75.7139 },
-  'rajasthan':   { lat: 27.0238, lng: 74.2179 },
-  'uttar pradesh': { lat: 26.8467, lng: 80.9462 },
-  'tamil nadu':  { lat: 11.1271, lng: 78.6569 },
-};
-
-function lookupCoords(village, state) {
-  const key = (village || '').toLowerCase().trim();
-  const stateKey = (state || '').toLowerCase().trim();
-  return CITY_COORDS[key] || CITY_COORDS[stateKey] || null;
-}
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
 function txStatus(tx) {

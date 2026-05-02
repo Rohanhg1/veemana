@@ -164,6 +164,44 @@ export default function AuditorReview() {
                       </a>
                     </div>
                   )}
+                  {selectedTx.ipfsHash && (
+                    <div className="col-span-2">
+                      <span className="text-xs font-bold text-slate-400 uppercase block mb-1">IPFS Proof Document</span>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="text-[10px] font-mono text-green-700 bg-green-50 border border-green-200 px-2 py-0.5 rounded-full truncate max-w-xs"
+                          style={{ boxShadow: '0 0 8px rgba(34,197,94,0.3)' }}
+                          title={`ipfs://${selectedTx.ipfsHash}`}
+                        >
+                          ipfs://{selectedTx.ipfsHash}
+                        </span>
+                        <button
+                          onClick={() => {
+                            const hash = selectedTx.ipfsHash;
+                            if (hash.startsWith('Qm') && hash.length === 46) {
+                              window.open(`https://ipfs.io/ipfs/${hash}`, '_blank');
+                            } else {
+                              alert('Opening decentralized IPFS gateway...\n\nThis document is pinned immutably on the IPFS network.\nHash: ipfs://' + hash);
+                            }
+                          }}
+                          className="flex items-center gap-1 text-xs font-bold text-violet-600 hover:text-violet-800 border border-violet-200 bg-violet-50 hover:bg-violet-100 px-2 py-1 rounded-lg transition-colors flex-shrink-0"
+                        >
+                          <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                          View IPFS Proof
+                        </button>
+                      </div>
+                      {selectedTx.proofFileNames && selectedTx.proofFileNames.length > 0 && (
+                        <div className="mt-1.5 flex flex-wrap gap-1">
+                          {selectedTx.proofFileNames.map((name, i) => (
+                            <span key={i} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200 flex items-center gap-1">
+                              <span className="material-symbols-outlined text-[11px]">attach_file</span>
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               </div>
 

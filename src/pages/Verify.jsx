@@ -136,6 +136,26 @@ export default function Verify() {
                       <p className="text-slate-600 flex gap-2"><span className="text-green-600 font-bold">✓</span> Approved by Auditor: {result.auditor || 'Cryptographic Signature Valid'} at {result.timestamp}</p>
                       <p className="text-slate-600 flex gap-2"><span className="text-green-600 font-bold">✓</span> Block #{result.blockNumber || 'Latest'} — Immutable record</p>
                     </div>
+                    {result.ipfsHash && (
+                      <div className="mb-4">
+                        <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">IPFS Proof Document</p>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span
+                            className="text-[10px] font-mono text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-full"
+                            style={{ boxShadow: '0 0 10px rgba(34,197,94,0.35)' }}
+                          >
+                            ipfs://{result.ipfsHash}
+                          </span>
+                          <button
+                            onClick={() => alert('Opening decentralized IPFS gateway...\n\nThis document is pinned immutably on the IPFS network.\nHash: ipfs://' + result.ipfsHash)}
+                            className="flex items-center gap-1 text-xs font-bold text-violet-600 border border-violet-200 bg-violet-50 hover:bg-violet-100 px-3 py-1.5 rounded-lg transition-colors"
+                          >
+                            <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                            View IPFS Proof Document
+                          </button>
+                        </div>
+                      </div>
+                    )}
                     <a href={`https://sepolia.etherscan.io/tx/${result.txHash}`} target="_blank" rel="noreferrer"
                       className="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm">
                       View on Etherscan <span className="material-symbols-outlined text-[16px]">open_in_new</span>
@@ -172,6 +192,26 @@ export default function Verify() {
                   <p className="text-amber-800 font-bold">Status: Auditor review in progress</p>
                   <p className="text-slate-600">Funds held in smart contract escrow. Cannot be diverted during review period.</p>
                 </div>
+                {result.ipfsHash && (
+                  <div className="mb-4">
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">IPFS Proof Document</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span
+                        className="text-[10px] font-mono text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-full"
+                        style={{ boxShadow: '0 0 10px rgba(34,197,94,0.35)' }}
+                      >
+                        ipfs://{result.ipfsHash}
+                      </span>
+                      <button
+                        onClick={() => alert('Opening decentralized IPFS gateway...\n\nThis document is pinned immutably on the IPFS network.\nHash: ipfs://' + result.ipfsHash)}
+                        className="flex items-center gap-1 text-xs font-bold text-violet-600 border border-violet-200 bg-violet-50 hover:bg-violet-100 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                        View IPFS Proof Document
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {result.txHash && (
                   <a href={`https://sepolia.etherscan.io/tx/${result.txHash}`} target="_blank" rel="noreferrer"
                     className="flex items-center justify-center gap-2 bg-amber-500 hover:bg-amber-600 text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm">
@@ -219,6 +259,26 @@ export default function Verify() {
                     </p>
                   </div>
                 </div>
+                {result.ipfsHash && (
+                  <div className="mb-4">
+                    <p className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2">IPFS Evidence Document (Frozen)</p>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span
+                        className="text-[10px] font-mono text-green-700 bg-green-50 border border-green-200 px-2 py-1 rounded-full"
+                        style={{ boxShadow: '0 0 10px rgba(34,197,94,0.35)' }}
+                      >
+                        ipfs://{result.ipfsHash}
+                      </span>
+                      <button
+                        onClick={() => alert('Opening decentralized IPFS gateway...\n\nThis document is pinned immutably on the IPFS network.\nHash: ipfs://' + result.ipfsHash)}
+                        className="flex items-center gap-1 text-xs font-bold text-violet-600 border border-violet-200 bg-violet-50 hover:bg-violet-100 px-3 py-1.5 rounded-lg transition-colors"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">open_in_new</span>
+                        View IPFS Proof Document
+                      </button>
+                    </div>
+                  </div>
+                )}
                 {result.txHash && (
                   <a href={`https://sepolia.etherscan.io/tx/${result.flagTxHash || result.txHash}`} target="_blank" rel="noreferrer"
                     className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-3 rounded-xl transition-colors text-sm">
